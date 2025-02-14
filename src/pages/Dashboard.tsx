@@ -1,5 +1,6 @@
 import { useEffect, useState, useMemo } from 'react';
-import { DropletIcon, AlertCircleIcon } from 'lucide-react';
+import { useNavigate } from 'react-router-dom';
+import { DropletIcon, AlertCircleIcon, EyeIcon, XIcon } from 'lucide-react';
 import { supabase } from '../lib/supabase';
 import { useTranslation } from 'react-i18next';
 import { Line } from 'react-chartjs-2';
@@ -7,6 +8,7 @@ import { useAuth } from '../context/AuthContext';
 import 'chart.js/auto';
 
 interface Bill {
+  id: string;
   jumlah: number;
   tanggal_jatuh_tempo: string;
 }
@@ -14,11 +16,13 @@ interface Bill {
 const Dashboard = () => {
   const { t } = useTranslation();
   const { user } = useAuth();
+  const navigate = useNavigate();
   const [currentUsage, setCurrentUsage] = useState(0);
   const [latestBill, setLatestBill] = useState<Bill | null>(null);
   const [customerId, setCustomerId] = useState('');
   const [usageHistory, setUsageHistory] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
+  const [showPopup, setShowPopup] = useState(false);
 
   useEffect(() => {
     let isMounted = true;
@@ -56,8 +60,7 @@ const Dashboard = () => {
           .from('pembacaan')
           .select('id, tanggal_pembacaan, penggunaan, pembacaan_saat_ini')
           .eq('meteran_id', customerData.meteran[0].id)
-          .order('tanggal_pembacaan', { ascending: false })
-          .limit(1);
+          .order('tanggal_pembacaan', { ascending: false });
 
         if (usageError) {
           console.error('Error fetching usage data:', usageError);
@@ -71,6 +74,32 @@ const Dashboard = () => {
             .from('meteran')
             .update({ pembacaan_terakhir: latestReading.pembacaan_saat_ini })
             .eq('id', customerData.meteran[0].id);
+
+          // Create a new bill from the latest reading
+          const newBillAmount = latestReading.penggunaan * 5000; // Example calculation
+          const dueDate = new Date();
+          dueDate.setDate(dueDate.getDate() + 30); // Set due date to 30 days from now
+
+          const { error: billError } = await supabase
+            .from('tagihan')
+            .insert({
+              pembacaan_id: latestReading.id,
+              pelanggan_id: customerData.id,
+              tanggal_tagihan: new Date().toISOString(),
+              jumlah: newBillAmount,
+              status: 'belum_dibayar',
+              tanggal_jatuh_tempo: dueDate.toISOString(),
+            });
+
+          if (billError) {
+            console.error('Error creating bill:', billError);
+          } else {
+            setLatestBill({
+              id: latestReading.id,
+              jumlah: newBillAmount,
+              tanggal_jatuh_tempo: dueDate.toISOString(),
+            });
+          }
         }
       }
 
@@ -98,6 +127,32 @@ const Dashboard = () => {
       },
     ],
   }), [usageHistory, t]);
+
+  const handleViewDetails = () => {
+    setShowPopup(true);
+  };
+
+  const handleClosePopup = () => {
+    setShowPopup(false);
+  };
+
+  const handlePayBill = async () => {
+    try {
+      const { error: billError } = await supabase
+        .from('tagihan')
+        .update({ status: 'dibayar', tanggal_dibayar: new Date().toISOString() })
+        .eq('id', latestBill?.id);
+
+      if (billError) {
+        console.error('Error paying bill:', billError);
+      } else {
+        setLatestBill((prev) => prev ? { ...prev, status: 'dibayar' } : null);
+        setShowPopup(false);
+      }
+    } catch (error) {
+      console.error('Error paying bill:', error);
+    }
+  };
 
   return (
     <div className="space-y-6">
@@ -127,6 +182,13 @@ const Dashboard = () => {
                 <AlertCircleIcon className="h-8 w-8 text-yellow-500" />
               </div>
               <p className="text-sm text-yellow-600 mt-2">{t('dashboard.dueIn', { days: latestBill?.tanggal_jatuh_tempo ? Math.ceil((new Date(latestBill.tanggal_jatuh_tempo).getTime() - new Date().getTime()) / (1000 * 60 * 60 * 24)) : 0 })}</p>
+              <button
+                className="mt-2 flex items-center text-blue-500 hover:underline"
+                onClick={handleViewDetails}
+              >
+                <EyeIcon className="h-5 w-5 mr-1" />
+                {t('dashboard.viewDetails')}
+              </button>
             </div>
 
             <div className="bg-white p-6 rounded-lg shadow-sm">
@@ -146,6 +208,56 @@ const Dashboard = () => {
               <Line data={chartData} />
             </div>
           </div>
+
+          {showPopup && (
+            <div className="fixed inset-0 flex items-center justify-center bg-black bg-opacity-50">
+              <div className="bg-white p-6 rounded-lg shadow-lg max-w-md w-full">
+                <div className="flex justify-between items-center mb-4">
+                  <h2 className="text-xl font-semibold">{t('dashboard.billDetails')}</h2>
+                  <button onClick={handleClosePopup}>
+                    <XIcon className="h-6 w-6 text-gray-500" />
+                  </button>
+                </div>
+                <div className="overflow-x-auto">
+                  <table className="min-w-full divide-y divide-gray-200 mb-4">
+                    <thead className="bg-gray-50">
+                      <tr>
+                        <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                          {t('dashboard.usage')}
+                        </th>
+                        <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                          {t('dashboard.rate')}
+                        </th>
+                        <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                          {t('dashboard.total')}
+                        </th>
+                      </tr>
+                    </thead>
+                    <tbody className="bg-white divide-y divide-gray-200">
+                      <tr>
+                        <td className="px-6 py-4 whitespace-nowrap">
+                          {(latestBill?.jumlah ?? 0) / 5000} m³
+                        </td>
+                        <td className="px-6 py-4 whitespace-nowrap">
+                          Rp 5000
+                        </td>
+                        <td className="px-6 py-4 whitespace-nowrap">
+                          Rp {latestBill?.jumlah}
+                        </td>
+                      </tr>
+                    </tbody>
+                  </table>
+                </div>
+                <p>{t('dashboard.dueDate')}: {latestBill?.tanggal_jatuh_tempo}</p>
+                <button
+                  className="mt-4 w-full py-2 px-4 bg-blue-600 text-white rounded-md hover:bg-blue-700"
+                  onClick={handlePayBill}
+                >
+                  {t('dashboard.payBill')}
+                </button>
+              </div>
+            </div>
+          )}
         </>
       )}
     </div>

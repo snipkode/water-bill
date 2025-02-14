@@ -7,7 +7,8 @@
     "dueDate": "Due Date",
     "actions": "Actions",
     "payNow": "Pay Now",
-    "notFound": "Data not found"
+    "notFound": "Data not found",
+    "loading": "Loading..."
   },
  "meterInfo": {
     "title": "Meter Information",
@@ -38,7 +39,8 @@
     "address": "Address",
     "phoneNumber": "Phone Number",
     "editProfile": "Edit Profile",
-    "saveProfile": "Save Profile"
+    "saveProfile": "Save Profile",
+    "cancel": "Cancel"
   },
   "readings": {
     "title": "Meter Readings",
@@ -69,6 +71,11 @@
     "customerId": "Customer ID",
     "usageHistory": "Usage History",
     "usageGraphPlaceholder": "Usage graph will be displayed here",
-    "loading": "Loading..."
+    "loading": "Loading...",
+    "billDetails": "Bill Details",
+    "billAmount": "Bill Amount",
+    "dueDate": "Due Date",
+    "payBill": "Pay Bill",
+    "viewDetails": "View Details"
   }
 }

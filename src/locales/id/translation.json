@@ -7,7 +7,8 @@
     "dueDate": "Tanggal Jatuh Tempo",
     "actions": "Aksi",
     "payNow": "Bayar Sekarang",
-    "notFound": "Data tidak ditemukan"
+    "notFound": "Data tidak ditemukan",
+    "loading": "Memuat..."
   },
   "meterInfo": {
     "title": "Informasi Meter",
@@ -38,7 +39,8 @@
     "address": "Alamat",
     "phoneNumber": "Nomor Telepon",
     "editProfile": "Edit Profil",
-    "saveProfile": "Simpan Profil"
+    "saveProfile": "Simpan Profil",
+    "cancel": "Batal"
   },
   "readings": {
     "title": "Pembacaan Meter",
@@ -69,6 +71,11 @@
     "customerId": "ID Pelanggan",
     "usageHistory": "Riwayat Penggunaan",
     "usageGraphPlaceholder": "Grafik penggunaan akan ditampilkan di sini",
-    "loading": "Memuat..."
+    "loading": "Memuat...",
+    "billDetails": "Detail Tagihan",
+    "billAmount": "Jumlah Tagihan",
+    "dueDate": "Tanggal Jatuh Tempo",
+    "payBill": "Bayar Tagihan",
+    "viewDetails": "Lihat Detail"
   }
 }
