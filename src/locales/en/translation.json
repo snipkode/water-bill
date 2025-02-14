@@ -1,0 +1,63 @@
+{
+  "bills": {
+    "title": "Bills",
+    "billDate": "Bill Date",
+    "amount": "Amount",
+    "status": "Status",
+    "dueDate": "Due Date",
+    "actions": "Actions",
+    "payNow": "Pay Now"
+  },
+  "payment": {
+    "details": "Payment Details",
+    "billNumber": "Bill #{{billId}}",
+    "dueDate": "Due Date: {{dueDate}}",
+    "amountDue": "Amount Due",
+    "paymentMethod": "Payment Method",
+    "bankTransfer": "Bank Transfer",
+    "bankTransferDescription": "Transfer to our bank account",
+    "bankDetails": "Bank Account Details",
+    "bank": "Bank: Bank Central Asia (BCA)",
+    "accountNumber": "Account Number: 1234567890",
+    "accountName": "Account Name: PT Water Supply",
+    "uploadProof": "Upload Payment Proof",
+    "submitPayment": "Submit Payment"
+  },
+  "profile": {
+    "title": "Profile",
+    "customerId": "Customer ID",
+    "fullName": "Full Name",
+    "email": "Email",
+    "address": "Address",
+    "phoneNumber": "Phone Number",
+    "editProfile": "Edit Profile"
+  },
+  "readings": {
+    "title": "Meter Readings",
+    "readingDate": "Reading Date",
+    "meterReading": "Meter Reading",
+    "usage": "Usage (m³)",
+    "meterPhoto": "Meter Photo",
+    "submitNewReading": "Submit New Reading",
+    "currentMeterReading": "Current Meter Reading (m³)",
+    "uploadMeterPhoto": "Upload Meter Photo",
+    "clickToTakePhoto": "Click to take a photo",
+    "submitReading": "Submit Reading"
+  },
+  "navigation": {
+    "dashboard": "Dashboard",
+    "bills": "Bills",
+    "readings": "Readings",
+    "profile": "Profile"
+  },
+  "dashboard": {
+    "title": "Dashboard",
+    "welcomeMessage": "Welcome to the WaterBill Dashboard",
+    "currentUsage": "Current Usage",
+    "latestBill": "Latest Bill",
+    "dueIn": "Due in {{days}} days",
+    "meterNumber": "Meter Number",
+    "usageHistory": "Usage History",
+    "usageGraphPlaceholder": "Usage graph will be displayed here"
+  }
+}
