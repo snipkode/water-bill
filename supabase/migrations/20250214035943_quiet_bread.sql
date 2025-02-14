@@ -64,6 +64,7 @@ CREATE TABLE IF NOT EXISTS pembacaan (
   tanggal_pembacaan date NOT NULL,
   pembacaan_saat_ini numeric(10,2) NOT NULL,
   penggunaan numeric(10,2) NOT NULL,
+  image_url text,
   dibuat_pada timestamptz DEFAULT now()
 );
 
@@ -198,65 +199,3 @@ CREATE POLICY "Admin dapat mengupdate sesi pengguna"
   TO authenticated
   USING (EXISTS (SELECT 1 FROM user_roles ur JOIN roles r ON ur.role_id = r.id WHERE ur.user_id = auth.uid() AND r.role_name = 'admin'));
 
--- Dummy Data
-
--- Data Users
-INSERT INTO auth.users (id, email)
-VALUES
-  (gen_random_uuid(), 'budi@example.com'),
-  (gen_random_uuid(), 'siti@example.com'),
-  (gen_random_uuid(), 'admin@example.com'),
-  (gen_random_uuid(), 'officer@example.com');
-
--- Data Roles
-INSERT INTO roles (id, role_name)
-VALUES
-  (gen_random_uuid(), 'admin'),
-  (gen_random_uuid(), 'officer'),
-  (gen_random_uuid(), 'customer');
-
--- Data Pelanggan
-INSERT INTO pelanggan (id, user_id, nama_lengkap, alamat, nomor_telepon, email, aktif, dibuat_pada, diperbarui_pada, last_active)
-VALUES
-  (gen_random_uuid(), (SELECT id FROM auth.users WHERE email = 'budi@example.com'), 'Budi Santoso', 'Jl. Merdeka No. 1', '081234567890', 'budi@example.com', true, now(), now(), now()),
-  (gen_random_uuid(), (SELECT id FROM auth.users WHERE email = 'siti@example.com'), 'Siti Aminah', 'Jl. Sudirman No. 2', '081234567891', 'siti@example.com', true, now(), now(), now());
-
--- Data User Roles
-INSERT INTO user_roles (id, user_id, role_id)
-VALUES
-  (gen_random_uuid(), (SELECT id FROM auth.users WHERE email = 'budi@example.com'), (SELECT id FROM roles WHERE role_name = 'customer')),
-  (gen_random_uuid(), (SELECT id FROM auth.users WHERE email = 'siti@example.com'), (SELECT id FROM roles WHERE role_name = 'customer')),
-  (gen_random_uuid(), (SELECT id FROM auth.users WHERE email = 'admin@example.com'), (SELECT id FROM roles WHERE role_name = 'admin')),
-  (gen_random_uuid(), (SELECT id FROM auth.users WHERE email = 'officer@example.com'), (SELECT id FROM roles WHERE role_name = 'officer'));
-
--- Data Meteran
-INSERT INTO meteran (id, pelanggan_id, nomor_meteran, tanggal_instalasi, pembacaan_terakhir, dibuat_pada, diperbarui_pada, komentar)
-VALUES
-  (gen_random_uuid(), (SELECT id FROM pelanggan WHERE nama_lengkap = 'Budi Santoso'), 'MTR-001', '2023-01-01', 100.0, now(), now(), 'Meteran baru diinstal'),
-  (gen_random_uuid(), (SELECT id FROM pelanggan WHERE nama_lengkap = 'Siti Aminah'), 'MTR-002', '2023-01-01', 150.0, now(), now(), 'Meteran baru diinstal');
-
--- Data Pembacaan
-INSERT INTO pembacaan (id, meteran_id, tanggal_pembacaan, pembacaan_saat_ini, penggunaan, dibuat_pada)
-VALUES
-  (gen_random_uuid(), (SELECT id FROM meteran WHERE nomor_meteran = 'MTR-001'), '2023-02-01', 120.0, 20.0, now()),
-  (gen_random_uuid(), (SELECT id FROM meteran WHERE nomor_meteran = 'MTR-002'), '2023-02-01', 170.0, 20.0, now());
-
--- Data Tagihan
-INSERT INTO tagihan (id, pembacaan_id, pelanggan_id, tanggal_tagihan, jumlah, status, tanggal_jatuh_tempo, dibuat_pada, diperbarui_pada)
-VALUES
-  (gen_random_uuid(), (SELECT id FROM pembacaan WHERE meteran_id = (SELECT id FROM meteran WHERE nomor_meteran = 'MTR-001')), (SELECT id FROM pelanggan WHERE nama_lengkap = 'Budi Santoso'), '2023-02-05', 200000.0, 'belum_dibayar', '2023-02-20', now(), now()),
-  (gen_random_uuid(), (SELECT id FROM pembacaan WHERE meteran_id = (SELECT id FROM meteran WHERE nomor_meteran = 'MTR-002')), (SELECT id FROM pelanggan WHERE nama_lengkap = 'Siti Aminah'), '2023-02-05', 250000.0, 'belum_dibayar', '2023-02-20', now(), now());
-
--- Data Diskusi
-INSERT INTO diskusi (id, tagihan_id, user_id, pesan, status, dibuat_pada, diperbarui_pada)
-VALUES
-  (gen_random_uuid(), (SELECT id FROM tagihan WHERE pelanggan_id = (SELECT id FROM pelanggan WHERE nama_lengkap = 'Budi Santoso')), (SELECT id FROM auth.users WHERE email = 'budi@example.com'), 'Tagihan saya terlalu tinggi, mohon dicek kembali.', 'belum_diverifikasi', now(), now()),
-  (gen_random_uuid(), (SELECT id FROM tagihan WHERE pelanggan_id = (SELECT id FROM pelanggan WHERE nama_lengkap = 'Siti Aminah')), (SELECT id FROM auth.users WHERE email = 'siti@example.com'), 'Pembacaan meteran tidak sesuai dengan penggunaan saya.', 'belum_diverifikasi', now(), now());
-
--- Data User Sessions
-INSERT INTO user_sessions (id, user_id, login_time, logout_time, is_active)
-VALUES
-  (gen_random_uuid(), (SELECT id FROM auth.users WHERE email = 'budi@example.com'), now(), NULL, true),
-  (gen_random_uuid(), (SELECT id FROM auth.users WHERE email = 'siti@example.com'), now(), NULL, true),
-  (gen_random_uuid(), (SELECT id FROM auth.users WHERE email = 'admin@example.com'), now(), NULL, true),
-  (gen_random_uuid(), (SELECT id FROM auth.users WHERE email = 'officer@example.com'), now(), NULL, true);
