@@ -4,7 +4,7 @@ import { DropletIcon, ReceiptIcon, GaugeIcon, UserIcon, MenuIcon, XIcon } from '
 import LanguageSelector from './LanguageSelector';
 import { useTranslation } from 'react-i18next';
 
-const Navigation = () => {
+const Navigation = ({ onLogout }: { onLogout: () => void }) => {
   const { t } = useTranslation();
   const location = useLocation();
   const [isOpen, setIsOpen] = useState(false);
@@ -58,6 +58,12 @@ const Navigation = () => {
               <span>{t('navigation.profile')}</span>
             </Link>
             <LanguageSelector />
+            <button
+              onClick={onLogout}
+              className="text-white inline-flex items-center px-3 py-2 rounded-md text-sm font-medium"
+            >
+              Logout
+            </button>
           </div>
           <div className="flex items-center space-x-4 lg:hidden">
             <LanguageSelector />
@@ -118,6 +124,12 @@ const Navigation = () => {
                 <UserIcon className="h-4 w-4" />
                 <span>{t('navigation.profile')}</span>
               </Link>
+              <button
+                onClick={onLogout}
+                className="text-white inline-flex items-center px-3 py-2 rounded-md text-sm font-medium"
+              >
+                Logout
+              </button>
             </nav>
           </div>
         </div>
