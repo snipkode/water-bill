@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react';
-import { UserIcon, EditIcon, SaveIcon } from 'lucide-react';
+import { UserIcon, EditIcon, SaveIcon, XIcon } from 'lucide-react';
 import { useTranslation } from 'react-i18next';
 import { supabase } from '../lib/supabase';
 
@@ -20,24 +20,18 @@ const Profile = () => {
       setLoading(true);
       const userId = localStorage.getItem('user_id');
 
-      const { data: userData, error: userError } = await supabase
-        .from('auth.users')
-        .select('email')
-        .eq('id', userId)
-        .single();
-
       const { data: customerData, error: customerError } = await supabase
         .from('pelanggan')
-        .select('nama_lengkap, alamat, nomor_telepon, id')
+        .select('nama_lengkap, alamat, nomor_telepon, id, email')
         .eq('user_id', userId)
         .single();
 
-      if (userError || customerError) {
-        console.error('Error fetching profile:', userError || customerError);
+      if (customerError) {
+        console.error('Error fetching profile:', customerError);
       } else {
         setProfile({
           fullName: customerData.nama_lengkap,
-          email: userData.email,
+          email: customerData.email,
           address: customerData.alamat,
           phoneNumber: customerData.nomor_telepon,
           customerId: customerData.id
@@ -51,6 +45,10 @@ const Profile = () => {
 
   const handleEdit = () => {
     setIsEditing(true);
+  };
+
+  const handleCancel = () => {
+    setIsEditing(false);
   };
 
   const handleSave = async () => {
@@ -96,7 +94,7 @@ const Profile = () => {
               type="text"
               value={profile.fullName}
               onChange={(e) => setProfile({ ...profile, fullName: e.target.value })}
-              className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500"
+              className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500 p-2 outline outline-1 outline-gray-300"
               disabled={!isEditing}
             />
           </div>
@@ -106,7 +104,7 @@ const Profile = () => {
             <input
               type="email"
               value={profile.email}
-              className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500"
+              className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500 p-2 outline outline-1 outline-gray-300"
               disabled
             />
           </div>
@@ -116,7 +114,7 @@ const Profile = () => {
             <textarea
               value={profile.address}
               onChange={(e) => setProfile({ ...profile, address: e.target.value })}
-              className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500"
+              className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500 p-2 outline outline-1 outline-gray-300"
               disabled={!isEditing}
             />
           </div>
@@ -127,22 +125,31 @@ const Profile = () => {
               type="tel"
               value={profile.phoneNumber}
               onChange={(e) => setProfile({ ...profile, phoneNumber: e.target.value })}
-              className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500"
+              className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500 p-2 outline outline-1 outline-gray-300"
               disabled={!isEditing}
             />
           </div>
         </div>
 
-        <div className="mt-6">
+        <div className="mt-6 flex space-x-4">
           {isEditing ? (
-            <button
-              onClick={handleSave}
-              className="bg-blue-600 text-white px-4 py-2 rounded-md hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 flex items-center space-x-1"
-              disabled={loading}
-            >
-              <SaveIcon className="h-5 w-5" />
-              <span className="hidden sm:inline">{t('profile.saveProfile')}</span>
-            </button>
+            <>
+              <button
+                onClick={handleSave}
+                className="bg-blue-600 text-white px-4 py-2 rounded-md hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 flex items-center space-x-1"
+                disabled={loading}
+              >
+                <SaveIcon className="h-5 w-5" />
+                <span className="hidden sm:inline">{t('profile.saveProfile')}</span>
+              </button>
+              <button
+                onClick={handleCancel}
+                className="bg-gray-600 text-white px-4 py-2 rounded-md hover:bg-gray-700 focus:outline-none focus:ring-2 focus:ring-gray-500 focus:ring-offset-2 flex items-center space-x-1"
+              >
+                <XIcon className="h-5 w-5" />
+                <span className="hidden sm:inline">{t('profile.cancel')}</span>
+              </button>
+            </>
           ) : (
             <button
               onClick={handleEdit}
