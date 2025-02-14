@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import { Link, useLocation } from 'react-router-dom';
-import { DropletIcon, ReceiptIcon, GaugeIcon, UserIcon, MenuIcon, XIcon } from 'lucide-react';
+import { DropletIcon, ReceiptIcon, GaugeIcon, UserIcon, MenuIcon, XIcon, LogOutIcon } from 'lucide-react';
 import LanguageSelector from './LanguageSelector';
 import { useTranslation } from 'react-i18next';
 
@@ -62,6 +62,7 @@ const Navigation = ({ onLogout }: { onLogout: () => void }) => {
               onClick={onLogout}
               className="text-white inline-flex items-center px-3 py-2 rounded-md text-sm font-medium"
             >
+              <LogOutIcon className="h-4 w-4 mr-1" />
               Logout
             </button>
           </div>
@@ -128,6 +129,7 @@ const Navigation = ({ onLogout }: { onLogout: () => void }) => {
                 onClick={onLogout}
                 className="text-white inline-flex items-center px-3 py-2 rounded-md text-sm font-medium"
               >
+                <LogOutIcon className="h-4 w-4 mr-1" />
                 Logout
               </button>
             </nav>

@@ -24,14 +24,19 @@ const Auth = () => {
 
     try {
       if (isLogin) {
-        const { error } = await supabase.auth.signInWithPassword({
+        const { data: { user }, error } = await supabase.auth.signInWithPassword({
           email: formData.email,
           password: formData.password,
         });
         if (error) throw error;
+        if (user) {
+          if (user) {
+            localStorage.setItem('user_id', user.id);
+          }
+        }
         navigate('/');
       } else {
-        const { error: signUpError } = await supabase.auth.signUp({
+        const { data: { user }, error: signUpError } = await supabase.auth.signUp({
           email: formData.email,
           password: formData.password,
           options: {
@@ -43,6 +48,9 @@ const Auth = () => {
           },
         });
         if (signUpError) throw signUpError;
+        if(user){
+          localStorage.setItem('user_id', user.id);
+        }
         navigate('/');
       }
     } catch (err: any) {

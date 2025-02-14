@@ -16,13 +16,22 @@ function App() {
   useEffect(() => {
     const checkSession = async () => {
       const { data: { session } } = await supabase.auth.getSession();
-      setIsAuthenticated(!!session);
+      if (session) {
+        localStorage.setItem('user_id', session.user.id);
+        setIsAuthenticated(true);
+      }
     };
 
     checkSession();
 
     const { data: authListener } = supabase.auth.onAuthStateChange((event, session) => {
-      setIsAuthenticated(!!session);
+      if (session) {
+        localStorage.setItem('user_id', session.user.id);
+        setIsAuthenticated(true);
+      } else {
+        localStorage.removeItem('user_id');
+        setIsAuthenticated(false);
+      }
     });
 
     return () => {
@@ -32,6 +41,7 @@ function App() {
 
   const handleLogout = async () => {
     await supabase.auth.signOut();
+    localStorage.removeItem('user_id');
     setIsAuthenticated(false);
   };
 
