@@ -91,7 +91,7 @@ const Dashboard = () => {
               <div className="flex items-center justify-between">
                 <div>
                   <p className="text-gray-500">{t('dashboard.meterNumber')}</p>
-                  <p className="text-2xl font-bold">{meterNumber}</p>
+                  <p className="text-2xl font-bold">{meterNumber ? meterNumber : "PG-000-000-000"}</p>
                 </div>
                 <DropletIcon className="h-8 w-8 text-gray-400" />
               </div>
