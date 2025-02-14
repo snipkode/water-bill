@@ -2,6 +2,8 @@ import { useEffect, useState } from 'react';
 import { DropletIcon, AlertCircleIcon } from 'lucide-react';
 import { supabase } from '../lib/supabase';
 import { useTranslation } from 'react-i18next';
+import { Line } from 'react-chartjs-2';
+import 'chart.js/auto';
 
 interface Bill {
   jumlah: number;
@@ -57,6 +59,19 @@ const Dashboard = () => {
     fetchData();
   }, []);
 
+  const chartData = {
+    labels: usageHistory.map((reading) => new Date(reading.tanggal_pembacaan).toLocaleDateString()),
+    datasets: [
+      {
+        label: t('dashboard.usageHistory'),
+        data: usageHistory.map((reading) => reading.penggunaan),
+        fill: false,
+        backgroundColor: 'rgba(75,192,192,0.4)',
+        borderColor: 'rgba(75,192,192,1)',
+      },
+    ],
+  };
+
   return (
     <div className="space-y-6">
       <h1 className="text-3xl font-bold">{t('dashboard.title')}</h1>
@@ -100,8 +115,8 @@ const Dashboard = () => {
 
           <div className="bg-white p-6 rounded-lg shadow-sm">
             <h2 className="text-xl font-semibold mb-4">{t('dashboard.usageHistory')}</h2>
-            <div className="h-64 bg-gray-50 rounded flex items-center justify-center">
-              <p className="text-gray-500">{t('dashboard.usageGraphPlaceholder')}</p>
+            <div className="h-64">
+              <Line data={chartData} />
             </div>
           </div>
         </>
