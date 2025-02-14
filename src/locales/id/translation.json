@@ -76,6 +76,9 @@
     "billAmount": "Jumlah Tagihan",
     "dueDate": "Tanggal Jatuh Tempo",
     "payBill": "Bayar Tagihan",
-    "viewDetails": "Lihat Detail"
+    "viewDetails": "Lihat Detail",
+    "usage": "Penggunaan",
+    "rate": "Tarif",
+    "total": "Total"
   }
 }

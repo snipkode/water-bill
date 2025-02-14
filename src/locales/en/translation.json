@@ -76,6 +76,9 @@
     "billAmount": "Bill Amount",
     "dueDate": "Due Date",
     "payBill": "Pay Bill",
-    "viewDetails": "View Details"
+    "viewDetails": "View Details",
+    "usage": "Usage",
+    "rate": "Rate",
+    "total": "Total"
   }
 }

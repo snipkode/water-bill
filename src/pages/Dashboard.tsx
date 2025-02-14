@@ -231,6 +231,9 @@ const Dashboard = () => {
                         <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
                           {t('dashboard.total')}
                         </th>
+                        <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                          {t('dashboard.dueDate')}
+                        </th>
                       </tr>
                     </thead>
                     <tbody className="bg-white divide-y divide-gray-200">
@@ -244,11 +247,13 @@ const Dashboard = () => {
                         <td className="px-6 py-4 whitespace-nowrap">
                           Rp {latestBill?.jumlah}
                         </td>
+                        <td className="px-6 py-4 whitespace-nowrap">
+                          {latestBill?.tanggal_jatuh_tempo}
+                        </td>
                       </tr>
                     </tbody>
                   </table>
                 </div>
-                <p>{t('dashboard.dueDate')}: {latestBill?.tanggal_jatuh_tempo}</p>
                 <button
                   className="mt-4 w-full py-2 px-4 bg-blue-600 text-white rounded-md hover:bg-blue-700"
                   onClick={handlePayBill}
