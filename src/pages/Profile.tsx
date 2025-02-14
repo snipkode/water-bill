@@ -16,6 +16,8 @@ const Profile = () => {
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
+    let isMounted = true;
+
     const fetchProfile = async () => {
       setLoading(true);
       const userId = localStorage.getItem('user_id');
@@ -28,7 +30,7 @@ const Profile = () => {
 
       if (customerError) {
         console.error('Error fetching profile:', customerError);
-      } else {
+      } else if (isMounted) {
         setProfile({
           fullName: customerData.nama_lengkap,
           email: customerData.email,
@@ -41,6 +43,10 @@ const Profile = () => {
     };
 
     fetchProfile();
+
+    return () => {
+      isMounted = false;
+    };
   }, []);
 
   const handleEdit = () => {

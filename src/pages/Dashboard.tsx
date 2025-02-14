@@ -1,8 +1,9 @@
-import { useEffect, useState } from 'react';
+import { useEffect, useState, useMemo } from 'react';
 import { DropletIcon, AlertCircleIcon } from 'lucide-react';
 import { supabase } from '../lib/supabase';
 import { useTranslation } from 'react-i18next';
 import { Line } from 'react-chartjs-2';
+import { useAuth } from '../context/AuthContext';
 import 'chart.js/auto';
 
 interface Bill {
@@ -12,6 +13,7 @@ interface Bill {
 
 const Dashboard = () => {
   const { t } = useTranslation();
+  const { user } = useAuth();
   const [currentUsage, setCurrentUsage] = useState(0);
   const [latestBill, setLatestBill] = useState<Bill | null>(null);
   const [customerId, setCustomerId] = useState('');
@@ -19,10 +21,11 @@ const Dashboard = () => {
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    const fetchData = async () => {
-      setLoading(true);
+    let isMounted = true;
 
-      const { data: { user } } = await supabase.auth.getUser();
+    const fetchData = async () => {
+      console.log('Fetching dashboard data...');
+      setLoading(true);
 
       const { data: customerData, error: customerError } = await supabase
         .from('pelanggan')
@@ -45,7 +48,7 @@ const Dashboard = () => {
 
       if (customerError) {
         console.error('Error fetching data:', customerError);
-      } else {
+      } else if (isMounted) {
         setCustomerId(customerData.id);
         setLatestBill(customerData.tagihan[0]);
 
@@ -58,7 +61,7 @@ const Dashboard = () => {
 
         if (usageError) {
           console.error('Error fetching usage data:', usageError);
-        } else {
+        } else if (isMounted) {
           setUsageHistory(usageData);
           const latestReading = usageData[0];
           setCurrentUsage(latestReading.pembacaan_saat_ini);
@@ -74,10 +77,16 @@ const Dashboard = () => {
       setLoading(false);
     };
 
-    fetchData();
-  }, []);
+    if (user) {
+      fetchData();
+    }
 
-  const chartData = {
+    return () => {
+      isMounted = false;
+    };
+  }, [user]); // Ensure the dependency array includes user to run only when it changes
+
+  const chartData = useMemo(() => ({
     labels: usageHistory.map((reading) => new Date(reading.tanggal_pembacaan).toLocaleDateString()),
     datasets: [
       {
@@ -88,7 +97,7 @@ const Dashboard = () => {
         borderColor: 'rgba(75,192,192,1)',
       },
     ],
-  };
+  }), [usageHistory, t]);
 
   return (
     <div className="space-y-6">

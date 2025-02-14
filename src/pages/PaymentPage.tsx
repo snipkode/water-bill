@@ -1,7 +1,8 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { useParams } from 'react-router-dom';
 import { CreditCardIcon, Loader2Icon } from 'lucide-react';
 import { useTranslation } from 'react-i18next';
+import { supabase } from '../lib/supabase';
 
 const PaymentPage = () => {
   const { t } = useTranslation();
@@ -10,6 +11,35 @@ const PaymentPage = () => {
   const [paymentMethod, setPaymentMethod] = useState('bank_transfer');
   const [proofImage, setProofImage] = useState<File | null>(null);
   const [previewUrl, setPreviewUrl] = useState<string>('');
+  const [bill, setBill] = useState(null);
+
+  useEffect(() => {
+    let isMounted = true;
+
+    const fetchBill = async () => {
+      setLoading(true);
+
+      const { data: billData, error: billError } = await supabase
+        .from('tagihan')
+        .select('*')
+        .eq('id', billId)
+        .single();
+
+      if (billError) {
+        console.error('Error fetching bill:', billError);
+      } else if (isMounted) {
+        setBill(billData);
+      }
+
+      setLoading(false);
+    };
+
+    fetchBill();
+
+    return () => {
+      isMounted = false;
+    };
+  }, [billId]);
 
   const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];

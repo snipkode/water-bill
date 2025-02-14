@@ -10,41 +10,10 @@ import PaymentPage from './pages/PaymentPage';
 import MeterInfo from './pages/MeterInfo';
 import { supabase } from './lib/supabase';
 import './i18n'; // Import i18n configuration
+import { AuthProvider, useAuth } from './context/AuthContext';
 
-function App() {
-  const [isAuthenticated, setIsAuthenticated] = useState(false);
-
-  useEffect(() => {
-    const checkSession = async () => {
-      const { data: { session } } = await supabase.auth.getSession();
-      if (session) {
-        localStorage.setItem('user_id', session.user.id);
-        setIsAuthenticated(true);
-      }
-    };
-
-    checkSession();
-
-    const { data: authListener } = supabase.auth.onAuthStateChange((event, session) => {
-      if (session) {
-        localStorage.setItem('user_id', session.user.id);
-        setIsAuthenticated(true);
-      } else {
-        localStorage.removeItem('user_id');
-        setIsAuthenticated(false);
-      }
-    });
-
-    return () => {
-      authListener.subscription.unsubscribe();
-    };
-  }, []);
-
-  const handleLogout = async () => {
-    await supabase.auth.signOut();
-    localStorage.removeItem('user_id');
-    setIsAuthenticated(false);
-  };
+const AppRoutes = () => {
+  const { isAuthenticated, handleLogout } = useAuth();
 
   return (
     <Router>
@@ -84,6 +53,14 @@ function App() {
         </div>
       </div>
     </Router>
+  );
+};
+
+function App() {
+  return (
+    <AuthProvider>
+      <AppRoutes />
+    </AuthProvider>
   );
 }
 

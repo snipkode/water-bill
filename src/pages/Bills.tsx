@@ -4,34 +4,44 @@ import { useNavigate } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
 import { CreditCardIcon } from 'lucide-react';
 import { supabase } from '../lib/supabase';
+import { useAuth } from '../context/AuthContext';
 
 const Bills = () => {
   const { t } = useTranslation();
   const navigate = useNavigate();
+  const { user } = useAuth();
   const [bills, setBills] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    const fetchBills = async () => {
-      setLoading(true);
-      const userId = localStorage.getItem('user_id');
+    let isMounted = true;
 
-      const { data, error } = await supabase
+    const fetchBills = async () => {
+      console.log('Fetching bills data...');
+      setLoading(true);
+
+      const { data: billsData, error: billsError } = await supabase
         .from('tagihan')
         .select('*')
-        .eq('pelanggan_id', userId)
+        .eq('pelanggan_id', user?.id)
         .order('tanggal_tagihan', { ascending: false });
 
-      if (error) {
-        console.error('Error fetching bills:', error);
-      } else {
-        setBills(data);
+      if (billsError) {
+        console.error('Error fetching bills:', billsError);
+      } else if (isMounted) {
+        setBills(billsData);
       }
       setLoading(false);
     };
 
-    fetchBills();
-  }, []);
+    if (user) {
+      fetchBills();
+    }
+
+    return () => {
+      isMounted = false;
+    };
+  }, [user]);
 
   const handlePayNow = (billId: number) => {
     navigate(`/payment/${billId}`);

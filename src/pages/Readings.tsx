@@ -5,10 +5,12 @@ import { useTranslation } from 'react-i18next';
 import Lightbox from '../components/Lightbox';
 import { supabase } from '../lib/supabase';
 import { useNavigate } from 'react-router-dom';
+import { useAuth } from '../context/AuthContext';
 
 const Readings = () => {
   const { t } = useTranslation();
   const navigate = useNavigate();
+  const { user } = useAuth();
   const [loading, setLoading] = useState(false);
   const [meterImage, setMeterImage] = useState<File | null>(null);
   const [previewUrl, setPreviewUrl] = useState<string>('');
@@ -16,9 +18,10 @@ const Readings = () => {
   const [readings, setReadings] = useState<any[]>([]);
 
   useEffect(() => {
+    let isMounted = true;
+
     const fetchReadings = async () => {
       setLoading(true);
-      const { data: { user } } = await supabase.auth.getUser();
 
       const { data: pelangganData, error: pelangganError } = await supabase
         .from('pelanggan')
@@ -52,14 +55,18 @@ const Readings = () => {
 
       if (error) {
         console.error('Error fetching readings:', error);
-      } else {
+      } else if (isMounted) {
         setReadings(data);
       }
       setLoading(false);
     };
 
     fetchReadings();
-  }, [navigate]);
+
+    return () => {
+      isMounted = false;
+    };
+  }, [navigate, user]);
 
   const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
@@ -78,7 +85,6 @@ const Readings = () => {
     setLoading(true);
 
     try {
-      const { data: { user } } = await supabase.auth.getUser();
       const { data: pelangganData } = await supabase
         .from('pelanggan')
         .select('id')

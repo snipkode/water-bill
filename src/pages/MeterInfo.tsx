@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
 import { supabase } from '../lib/supabase';
@@ -11,6 +11,38 @@ const MeterInfo = () => {
   const [installationDate, setInstallationDate] = useState('');
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState('');
+  const [meterInfo, setMeterInfo] = useState(null);
+
+  useEffect(() => {
+    let isMounted = true;
+
+    const fetchMeterInfo = async () => {
+      console.log('Fetching meter info data...');
+      setLoading(true);
+
+      const { data: { user } } = await supabase.auth.getUser();
+
+      const { data: meterInfoData, error: meterInfoError } = await supabase
+        .from('meteran')
+        .select('*')
+        .eq('pelanggan_id', user?.id)
+        .single();
+
+      if (meterInfoError) {
+        console.error('Error fetching meter info:', meterInfoError);
+      } else if (isMounted) {
+        setMeterInfo(meterInfoData);
+      }
+
+      setLoading(false);
+    };
+
+    fetchMeterInfo();
+
+    return () => {
+      isMounted = false;
+    };
+  }, []); // Ensure the dependency array is empty to run only once
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
