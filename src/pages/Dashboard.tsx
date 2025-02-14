@@ -26,31 +26,49 @@ const Dashboard = () => {
 
       const { data: customerData, error: customerError } = await supabase
         .from('pelanggan')
-        .select('id, pembacaan_terakhir')
+        .select(`
+          id, 
+          tagihan (
+            id, 
+            jumlah, 
+            tanggal_jatuh_tempo
+          ), 
+          meteran (
+            id,
+            nomor_meteran,
+            tanggal_instalasi,
+            pembacaan_terakhir
+          )
+        `)
         .eq('user_id', user?.id)
         .single();
 
-      const { data: billData, error: billError } = await supabase
-        .from('tagihan')
-        .select('*')
-        .eq('pelanggan_id', customerData?.id)
-        .order('tanggal_tagihan', { ascending: false })
-        .limit(1)
-        .single();
-
-      const { data: usageData, error: usageError } = await supabase
-        .from('pembacaan')
-        .select('*')
-        .eq('meteran_id', customerData?.id)
-        .order('tanggal_pembacaan', { ascending: false });
-
-      if (customerError || billError || usageError) {
-        console.error('Error fetching data:', customerError || billError || usageError);
+      if (customerError) {
+        console.error('Error fetching data:', customerError);
       } else {
         setCustomerId(customerData.id);
-        setCurrentUsage(customerData.pembacaan_terakhir);
-        setLatestBill(billData);
-        setUsageHistory(usageData);
+        setLatestBill(customerData.tagihan[0]);
+
+        const { data: usageData, error: usageError } = await supabase
+          .from('pembacaan')
+          .select('id, tanggal_pembacaan, penggunaan, pembacaan_saat_ini')
+          .eq('meteran_id', customerData.meteran[0].id)
+          .order('tanggal_pembacaan', { ascending: false })
+          .limit(1);
+
+        if (usageError) {
+          console.error('Error fetching usage data:', usageError);
+        } else {
+          setUsageHistory(usageData);
+          const latestReading = usageData[0];
+          setCurrentUsage(latestReading.pembacaan_saat_ini);
+
+          // Update the meteran table with the latest pembacaan
+          await supabase
+            .from('meteran')
+            .update({ pembacaan_terakhir: latestReading.pembacaan_saat_ini })
+            .eq('id', customerData.meteran[0].id);
+        }
       }
 
       setLoading(false);
