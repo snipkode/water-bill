@@ -7,6 +7,7 @@ import Readings from './pages/Readings';
 import Profile from './pages/Profile';
 import Auth from './pages/Auth';
 import PaymentPage from './pages/PaymentPage';
+import MeterInfo from './pages/MeterInfo';
 import { supabase } from './lib/supabase';
 import './i18n'; // Import i18n configuration
 
@@ -74,6 +75,10 @@ function App() {
             <Route
               path="/payment/:billId"
               element={isAuthenticated ? <PaymentPage /> : <Navigate to="/auth" replace />}
+            />
+            <Route
+              path="/meter-info"
+              element={isAuthenticated ? <MeterInfo /> : <Navigate to="/auth" replace />}
             />
           </Routes>
         </div>

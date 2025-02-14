@@ -4,9 +4,11 @@ import { CameraIcon, Loader2Icon, PlusIcon } from 'lucide-react';
 import { useTranslation } from 'react-i18next';
 import Lightbox from '../components/Lightbox';
 import { supabase } from '../lib/supabase';
+import { useNavigate } from 'react-router-dom';
 
 const Readings = () => {
   const { t } = useTranslation();
+  const navigate = useNavigate();
   const [loading, setLoading] = useState(false);
   const [meterImage, setMeterImage] = useState<File | null>(null);
   const [previewUrl, setPreviewUrl] = useState<string>('');
@@ -18,15 +20,27 @@ const Readings = () => {
       setLoading(true);
       const { data: { user } } = await supabase.auth.getUser();
 
+      const { data: pelangganData, error: pelangganError } = await supabase
+        .from('pelanggan')
+        .select('id')
+        .eq('user_id', user?.id)
+        .single();
+
+      if (pelangganError || !pelangganData) {
+        console.error('Error fetching pelanggan:', pelangganError);
+        navigate('/meter-info');
+        return;
+      }
+
       const { data: meteranData, error: meteranError } = await supabase
         .from('meteran')
         .select('id')
-        .eq('pelanggan_id', user?.id)
+        .eq('pelanggan_id', pelangganData.id)
         .single();
 
       if (meteranError || !meteranData) {
         console.error('Error fetching meteran:', meteranError);
-        setLoading(false);
+        navigate('/meter-info');
         return;
       }
 
@@ -45,7 +59,7 @@ const Readings = () => {
     };
 
     fetchReadings();
-  }, []);
+  }, [navigate]);
 
   const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
@@ -65,11 +79,17 @@ const Readings = () => {
 
     try {
       const { data: { user } } = await supabase.auth.getUser();
-      const { data: meteranData } = await supabase
+      const { data: pelangganData } = await supabase
+        .from('pelanggan')
+        .select('id')
+        .eq('user_id', user?.id)
+        .single();
+
+      const { data: meteranData } = pelangganData ? await supabase
         .from('meteran')
         .select('id')
-        .eq('pelanggan_id', user?.id)
-        .single();
+        .eq('pelanggan_id', pelangganData.id)
+        .single() : { data: null };
 
       if (meterImage && meteranData) {
         const { data: imageData, error: imageError } = await supabase.storage
