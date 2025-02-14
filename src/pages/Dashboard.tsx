@@ -12,7 +12,7 @@ const Dashboard = () => {
   const { t } = useTranslation();
   const [currentUsage, setCurrentUsage] = useState(0);
   const [latestBill, setLatestBill] = useState<Bill | null>(null);
-  const [meterNumber, setMeterNumber] = useState('');
+  const [customerId, setCustomerId] = useState('');
   const [usageHistory, setUsageHistory] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
 
@@ -22,16 +22,16 @@ const Dashboard = () => {
 
       const { data: { user } } = await supabase.auth.getUser();
 
-      const { data: meterData, error: meterError } = await supabase
-        .from('meteran')
-        .select('id, nomor_meteran, pembacaan_terakhir')
-        .eq('pelanggan_id', user?.id)
+      const { data: customerData, error: customerError } = await supabase
+        .from('pelanggan')
+        .select('id, pembacaan_terakhir')
+        .eq('user_id', user?.id)
         .single();
 
       const { data: billData, error: billError } = await supabase
         .from('tagihan')
         .select('*')
-        .eq('pelanggan_id', user?.id)
+        .eq('pelanggan_id', customerData?.id)
         .order('tanggal_tagihan', { ascending: false })
         .limit(1)
         .single();
@@ -39,14 +39,14 @@ const Dashboard = () => {
       const { data: usageData, error: usageError } = await supabase
         .from('pembacaan')
         .select('*')
-        .eq('meteran_id', meterData?.id)
+        .eq('meteran_id', customerData?.id)
         .order('tanggal_pembacaan', { ascending: false });
 
-      if (meterError || billError || usageError) {
-        console.error('Error fetching data:', meterError || billError || usageError);
+      if (customerError || billError || usageError) {
+        console.error('Error fetching data:', customerError || billError || usageError);
       } else {
-        setMeterNumber(meterData.nomor_meteran);
-        setCurrentUsage(meterData.pembacaan_terakhir);
+        setCustomerId(customerData.id);
+        setCurrentUsage(customerData.pembacaan_terakhir);
         setLatestBill(billData);
         setUsageHistory(usageData);
       }
@@ -90,8 +90,8 @@ const Dashboard = () => {
             <div className="bg-white p-6 rounded-lg shadow-sm">
               <div className="flex items-center justify-between">
                 <div>
-                  <p className="text-gray-500">{t('dashboard.meterNumber')}</p>
-                  <p className="text-2xl font-bold">{meterNumber ? meterNumber : "PG-000-000-000"}</p>
+                  <p className="text-gray-500">{t('dashboard.customerId')}</p>
+                  <p className="text-2xl font-bold">{customerId}</p>
                 </div>
                 <DropletIcon className="h-8 w-8 text-gray-400" />
               </div>
@@ -101,7 +101,7 @@ const Dashboard = () => {
           <div className="bg-white p-6 rounded-lg shadow-sm">
             <h2 className="text-xl font-semibold mb-4">{t('dashboard.usageHistory')}</h2>
             <div className="h-64 bg-gray-50 rounded flex items-center justify-center">
-              <p className="text-gray-500">{t('dashboard.usageGraph')}</p>
+              <p className="text-gray-500">{t('dashboard.usageGraphPlaceholder')}</p>
             </div>
           </div>
         </>

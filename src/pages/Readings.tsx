@@ -1,8 +1,9 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { format } from 'date-fns';
 import { CameraIcon, Loader2Icon, PlusIcon } from 'lucide-react';
 import { useTranslation } from 'react-i18next';
 import Lightbox from '../components/Lightbox';
+import { supabase } from '../lib/supabase';
 
 const Readings = () => {
   const { t } = useTranslation();
@@ -10,23 +11,41 @@ const Readings = () => {
   const [meterImage, setMeterImage] = useState<File | null>(null);
   const [previewUrl, setPreviewUrl] = useState<string>('');
   const [currentReading, setCurrentReading] = useState('');
+  const [readings, setReadings] = useState<any[]>([]);
 
-  const readings = [
-    {
-      id: 1,
-      date: new Date(),
-      reading: 150,
-      usage: 15,
-      imageUrl: 'https://images.unsplash.com/photo-1585245332774-3dd2b177e7fa?auto=format&fit=crop&q=80&w=400',
-    },
-    {
-      id: 2,
-      date: new Date(Date.now() - 30 * 24 * 60 * 60 * 1000),
-      reading: 135,
-      usage: 12,
-      imageUrl: 'https://images.unsplash.com/photo-1586936893354-362ad6ae47ba?auto=format&fit=crop&q=80&w=400',
-    },
-  ];
+  useEffect(() => {
+    const fetchReadings = async () => {
+      setLoading(true);
+      const { data: { user } } = await supabase.auth.getUser();
+
+      const { data: meteranData, error: meteranError } = await supabase
+        .from('meteran')
+        .select('id')
+        .eq('pelanggan_id', user?.id)
+        .single();
+
+      if (meteranError || !meteranData) {
+        console.error('Error fetching meteran:', meteranError);
+        setLoading(false);
+        return;
+      }
+
+      const { data, error } = await supabase
+        .from('pembacaan')
+        .select('*')
+        .eq('meteran_id', meteranData.id)
+        .order('tanggal_pembacaan', { ascending: false });
+
+      if (error) {
+        console.error('Error fetching readings:', error);
+      } else {
+        setReadings(data);
+      }
+      setLoading(false);
+    };
+
+    fetchReadings();
+  }, []);
 
   const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
@@ -43,8 +62,44 @@ const Readings = () => {
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setLoading(true);
-    // Handle reading submission here
-    setTimeout(() => setLoading(false), 2000);
+
+    try {
+      const { data: { user } } = await supabase.auth.getUser();
+      const { data: meteranData } = await supabase
+        .from('meteran')
+        .select('id')
+        .eq('pelanggan_id', user?.id)
+        .single();
+
+      if (meterImage && meteranData) {
+        const { data: imageData, error: imageError } = await supabase.storage
+          .from('meter-images')
+          .upload(`public/${Date.now()}_${meterImage.name}`, meterImage);
+
+        if (imageError) throw imageError;
+
+        const { error: insertError } = await supabase
+          .from('pembacaan')
+          .insert({
+            meteran_id: meteranData.id,
+            tanggal_pembacaan: new Date().toISOString(),
+            pembacaan_saat_ini: parseFloat(currentReading),
+            penggunaan: parseFloat(currentReading) - (readings[0]?.pembacaan_saat_ini || 0),
+            image_url: imageData?.path,
+          });
+
+        if (insertError) throw insertError;
+
+        setCurrentReading('');
+        setMeterImage(null);
+        setPreviewUrl('');
+        setReadings([{ meteran_id: meteranData.id, tanggal_pembacaan: new Date().toISOString(), pembacaan_saat_ini: parseFloat(currentReading), penggunaan: parseFloat(currentReading) - (readings[0]?.pembacaan_saat_ini || 0), image_url: imageData?.path }, ...readings]);
+      }
+    } catch (error) {
+      console.error('Error submitting reading:', error);
+    } finally {
+      setLoading(false);
+    }
   };
 
   return (
@@ -80,22 +135,36 @@ const Readings = () => {
               </tr>
             </thead>
             <tbody className="bg-white divide-y divide-gray-200">
-              {readings.map((reading) => (
-                <tr key={reading.id}>
-                  <td className="px-6 py-4 whitespace-nowrap">
-                    {format(reading.date, 'dd MMM yyyy')}
-                  </td>
-                  <td className="px-6 py-4 whitespace-nowrap">
-                    {reading.reading.toLocaleString()} m³
-                  </td>
-                  <td className="px-6 py-4 whitespace-nowrap">
-                    {reading.usage} m³
-                  </td>
-                  <td className="px-6 py-4 whitespace-nowrap">
-                    <Lightbox imageUrl={reading.imageUrl} altText="Meter reading" />
+              {loading ? (
+                <tr>
+                  <td colSpan={4} className="px-6 py-4 text-center">
+                    {t('readings.loading')}
                   </td>
                 </tr>
-              ))}
+              ) : readings.length === 0 ? (
+                <tr>
+                  <td colSpan={4} className="px-6 py-4 text-center">
+                    {t('readings.notFound')}
+                  </td>
+                </tr>
+              ) : (
+                readings.map((reading) => (
+                  <tr key={reading.id}>
+                    <td className="px-6 py-4 whitespace-nowrap">
+                      {format(new Date(reading.tanggal_pembacaan), 'dd MMM yyyy')}
+                    </td>
+                    <td className="px-6 py-4 whitespace-nowrap">
+                      {reading.pembacaan_saat_ini.toLocaleString()} m³
+                    </td>
+                    <td className="px-6 py-4 whitespace-nowrap">
+                      {reading.penggunaan} m³
+                    </td>
+                    <td className="px-6 py-4 whitespace-nowrap">
+                      <Lightbox imageUrl={reading.image_url} altText="Meter reading" />
+                    </td>
+                  </tr>
+                ))
+              )}
             </tbody>
           </table>
         </div>

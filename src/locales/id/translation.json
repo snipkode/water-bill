@@ -42,7 +42,9 @@
     "currentMeterReading": "Pembacaan Meter Saat Ini (m³)",
     "uploadMeterPhoto": "Unggah Foto Meter",
     "clickToTakePhoto": "Klik untuk mengambil foto",
-    "submitReading": "Kirim Pembacaan"
+    "submitReading": "Kirim Pembacaan",
+    "loading": "Memuat...",
+    "notFound": "Data tidak ditemukan"
   },
   "navigation": {
     "dashboard": "Dasbor",
@@ -56,8 +58,9 @@
     "currentUsage": "Penggunaan Saat Ini",
     "latestBill": "Tagihan Terbaru",
     "dueIn": "Jatuh tempo dalam {{days}} hari",
-    "meterNumber": "Nomor Meter",
+    "customerId": "ID Pelanggan",
     "usageHistory": "Riwayat Penggunaan",
-    "usageGraphPlaceholder": "Grafik penggunaan akan ditampilkan di sini"
+    "usageGraphPlaceholder": "Grafik penggunaan akan ditampilkan di sini",
+    "loading": "Memuat..."
   }
 }

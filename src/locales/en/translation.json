@@ -42,7 +42,9 @@
     "currentMeterReading": "Current Meter Reading (m³)",
     "uploadMeterPhoto": "Upload Meter Photo",
     "clickToTakePhoto": "Click to take a photo",
-    "submitReading": "Submit Reading"
+    "submitReading": "Submit Reading",
+    "loading": "Loading...",
+    "notFound": "Data not found"
   },
   "navigation": {
     "dashboard": "Dashboard",
@@ -56,8 +58,9 @@
     "currentUsage": "Current Usage",
     "latestBill": "Latest Bill",
     "dueIn": "Due in {{days}} days",
-    "meterNumber": "Meter Number",
+    "customerId": "Customer ID",
     "usageHistory": "Usage History",
-    "usageGraphPlaceholder": "Usage graph will be displayed here"
+    "usageGraphPlaceholder": "Usage graph will be displayed here",
+    "loading": "Loading..."
   }
 }
