@@ -30,9 +30,7 @@ const Auth = () => {
         });
         if (error) throw error;
         if (user) {
-          if (user) {
-            localStorage.setItem('user_id', user.id);
-          }
+          localStorage.setItem('user_id', user.id);
         }
         navigate('/');
       } else {
@@ -48,8 +46,18 @@ const Auth = () => {
           },
         });
         if (signUpError) throw signUpError;
-        if(user){
+        if (user) {
           localStorage.setItem('user_id', user.id);
+          const { error: pelangganError } = await supabase
+            .from('pelanggan')
+            .insert({
+              user_id: user.id,
+              nama_lengkap: formData.fullName,
+              alamat: formData.address,
+              nomor_telepon: formData.phoneNumber,
+              email: formData.email,
+            });
+          if (pelangganError) throw pelangganError;
         }
         navigate('/');
       }
