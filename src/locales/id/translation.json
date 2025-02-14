@@ -6,7 +6,14 @@
     "status": "Status",
     "dueDate": "Tanggal Jatuh Tempo",
     "actions": "Aksi",
-    "payNow": "Bayar Sekarang"
+    "payNow": "Bayar Sekarang",
+    "notFound": "Data tidak ditemukan"
+  },
+  "meterInfo": {
+    "title": "Informasi Meter",
+    "meterNumber": "Nomor Meter",
+    "meterInstallationDate": "Tanggal Pemasangan Meter",
+    "submitMeterInfo": "Kirim Informasi Meter"
   },
   "payment": {
     "details": "Detail Pembayaran",

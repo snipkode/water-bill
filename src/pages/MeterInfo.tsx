@@ -78,7 +78,7 @@ const MeterInfo = () => {
 
             <div>
               <label htmlFor="installationDate" className="block text-sm font-medium text-gray-700">
-                {t('meterInfo.installationDate')}
+                {t('meterInfo.meterInstallationDate')}
               </label>
               <input
                 id="installationDate"
@@ -99,7 +99,7 @@ const MeterInfo = () => {
                 {loading ? (
                   <Loader2Icon className="h-5 w-5 animate-spin" />
                 ) : (
-                  t('meterInfo.submit')
+                  t('meterInfo.submitMeterInfo')
                 )}
               </button>
             </div>

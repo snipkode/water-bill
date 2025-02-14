@@ -6,7 +6,14 @@
     "status": "Status",
     "dueDate": "Due Date",
     "actions": "Actions",
-    "payNow": "Pay Now"
+    "payNow": "Pay Now",
+    "notFound": "Data not found"
+  },
+ "meterInfo": {
+    "title": "Meter Information",
+    "meterNumber": "Meter Number",
+    "meterInstallationDate": "Meter Installation Date",
+    "submitMeterInfo": "Submit Meter Information"
   },
   "payment": {
     "details": "Payment Details",
