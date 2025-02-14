@@ -98,6 +98,15 @@ const Readings = () => {
 
         if (imageError) throw imageError;
 
+        const { data: signedUrlData, error: signedUrlError } = await supabase
+          .storage
+          .from('meter-images')
+          .createSignedUrl(imageData.path, 60);
+
+        if (signedUrlError) throw signedUrlError;
+
+        const imageUrl = signedUrlData.signedUrl;
+
         const { error: insertError } = await supabase
           .from('pembacaan')
           .insert({
@@ -105,7 +114,7 @@ const Readings = () => {
             tanggal_pembacaan: new Date().toISOString(),
             pembacaan_saat_ini: parseFloat(currentReading),
             penggunaan: parseFloat(currentReading) - (readings[0]?.pembacaan_saat_ini || 0),
-            image_url: imageData?.path,
+            image_url: imageUrl,
           });
 
         if (insertError) throw insertError;
@@ -113,7 +122,7 @@ const Readings = () => {
         setCurrentReading('');
         setMeterImage(null);
         setPreviewUrl('');
-        setReadings([{ meteran_id: meteranData.id, tanggal_pembacaan: new Date().toISOString(), pembacaan_saat_ini: parseFloat(currentReading), penggunaan: parseFloat(currentReading) - (readings[0]?.pembacaan_saat_ini || 0), image_url: imageData?.path }, ...readings]);
+        setReadings([{ meteran_id: meteranData.id, tanggal_pembacaan: new Date().toISOString(), pembacaan_saat_ini: parseFloat(currentReading), penggunaan: parseFloat(currentReading) - (readings[0]?.pembacaan_saat_ini || 0), image_url: imageUrl }, ...readings]);
       }
     } catch (error) {
       console.error('Error submitting reading:', error);
