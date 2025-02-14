@@ -30,7 +30,8 @@
     "email": "Email",
     "address": "Address",
     "phoneNumber": "Phone Number",
-    "editProfile": "Edit Profile"
+    "editProfile": "Edit Profile",
+    "saveProfile": "Save Profile"
   },
   "readings": {
     "title": "Meter Readings",

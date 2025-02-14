@@ -30,7 +30,8 @@
     "email": "Email",
     "address": "Alamat",
     "phoneNumber": "Nomor Telepon",
-    "editProfile": "Edit Profil"
+    "editProfile": "Edit Profil",
+    "saveProfile": "Simpan Profil"
   },
   "readings": {
     "title": "Pembacaan Meter",

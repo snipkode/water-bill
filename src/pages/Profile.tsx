@@ -1,16 +1,78 @@
-import { useState } from 'react';
-import { UserIcon, EditIcon } from 'lucide-react';
+import { useState, useEffect } from 'react';
+import { UserIcon, EditIcon, SaveIcon } from 'lucide-react';
 import { useTranslation } from 'react-i18next';
+import { supabase } from '../lib/supabase';
 
 const Profile = () => {
   const { t } = useTranslation();
   const [profile, setProfile] = useState({
-    fullName: 'John Doe',
-    email: 'john@example.com',
-    address: 'Jl. Sudirman No. 123',
-    phoneNumber: '081234567890',
-    meterNumber: 'A123456789'
+    fullName: '',
+    email: '',
+    address: '',
+    phoneNumber: '',
+    customerId: ''
   });
+  const [isEditing, setIsEditing] = useState(false);
+  const [loading, setLoading] = useState(true);
+
+  useEffect(() => {
+    const fetchProfile = async () => {
+      setLoading(true);
+      const userId = localStorage.getItem('user_id');
+
+      const { data: userData, error: userError } = await supabase
+        .from('auth.users')
+        .select('email')
+        .eq('id', userId)
+        .single();
+
+      const { data: customerData, error: customerError } = await supabase
+        .from('pelanggan')
+        .select('nama_lengkap, alamat, nomor_telepon, id')
+        .eq('user_id', userId)
+        .single();
+
+      if (userError || customerError) {
+        console.error('Error fetching profile:', userError || customerError);
+      } else {
+        setProfile({
+          fullName: customerData.nama_lengkap,
+          email: userData.email,
+          address: customerData.alamat,
+          phoneNumber: customerData.nomor_telepon,
+          customerId: customerData.id
+        });
+      }
+      setLoading(false);
+    };
+
+    fetchProfile();
+  }, []);
+
+  const handleEdit = () => {
+    setIsEditing(true);
+  };
+
+  const handleSave = async () => {
+    setLoading(true);
+    const userId = localStorage.getItem('user_id');
+
+    const { error: updateError } = await supabase
+      .from('pelanggan')
+      .update({
+        nama_lengkap: profile.fullName,
+        alamat: profile.address,
+        nomor_telepon: profile.phoneNumber
+      })
+      .eq('user_id', userId);
+
+    if (updateError) {
+      console.error('Error updating profile:', updateError);
+    } else {
+      setIsEditing(false);
+    }
+    setLoading(false);
+  };
 
   return (
     <div className="space-y-6">
@@ -23,7 +85,7 @@ const Profile = () => {
           </div>
           <div>
             <h2 className="text-xl font-semibold">{profile.fullName}</h2>
-            <p className="text-gray-500">{t('profile.customerId')}: {profile.meterNumber}</p>
+            <p className="text-gray-500">{t('profile.customerId')}: {profile.customerId}</p>
           </div>
         </div>
 
@@ -33,8 +95,9 @@ const Profile = () => {
             <input
               type="text"
               value={profile.fullName}
+              onChange={(e) => setProfile({ ...profile, fullName: e.target.value })}
               className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500"
-              disabled
+              disabled={!isEditing}
             />
           </div>
 
@@ -50,11 +113,11 @@ const Profile = () => {
 
           <div>
             <label className="block text-sm font-medium text-gray-700">{t('profile.address')}</label>
-            <input
-              type="text"
+            <textarea
               value={profile.address}
+              onChange={(e) => setProfile({ ...profile, address: e.target.value })}
               className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500"
-              disabled
+              disabled={!isEditing}
             />
           </div>
 
@@ -63,17 +126,32 @@ const Profile = () => {
             <input
               type="tel"
               value={profile.phoneNumber}
+              onChange={(e) => setProfile({ ...profile, phoneNumber: e.target.value })}
               className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500"
-              disabled
+              disabled={!isEditing}
             />
           </div>
         </div>
 
         <div className="mt-6">
-          <button className="bg-blue-600 text-white px-4 py-2 rounded-md hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 flex items-center space-x-1">
-            <EditIcon className="h-5 w-5" />
-            <span className="hidden sm:inline">{t('profile.editProfile')}</span>
-          </button>
+          {isEditing ? (
+            <button
+              onClick={handleSave}
+              className="bg-blue-600 text-white px-4 py-2 rounded-md hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 flex items-center space-x-1"
+              disabled={loading}
+            >
+              <SaveIcon className="h-5 w-5" />
+              <span className="hidden sm:inline">{t('profile.saveProfile')}</span>
+            </button>
+          ) : (
+            <button
+              onClick={handleEdit}
+              className="bg-blue-600 text-white px-4 py-2 rounded-md hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 flex items-center space-x-1"
+            >
+              <EditIcon className="h-5 w-5" />
+              <span className="hidden sm:inline">{t('profile.editProfile')}</span>
+            </button>
+          )}
         </div>
       </div>
     </div>
