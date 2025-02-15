@@ -121,9 +121,28 @@ const PaymentPage = () => {
           {paymentMethod === 'bank_transfer' && (
             <div className="bg-gray-50 p-4 rounded-lg mb-6">
               <h4 className="font-medium mb-2">{t('payment.bankDetails')}</h4>
-              <p className="text-sm text-gray-600">{t('payment.bank')}</p>
-              <p className="text-sm text-gray-600">{t('payment.accountNumber')}</p>
-              <p className="text-sm text-gray-600">{t('payment.accountName')}</p>
+              <table className="min-w-full divide-y divide-gray-200">
+                <thead className="bg-gray-50">
+                  <tr>
+                    <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                      {t('payment.bank')}
+                    </th>
+                    <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                      {t('payment.accountNumber')}
+                    </th>
+                    <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                      {t('payment.accountName')}
+                    </th>
+                  </tr>
+                </thead>
+                <tbody className="bg-white divide-y divide-gray-200">
+                  <tr>
+                    <td className="px-6 py-4 whitespace-nowrap">Bank ABC</td>
+                    <td className="px-6 py-4 whitespace-nowrap">1234567890</td>
+                    <td className="px-6 py-4 whitespace-nowrap">PT. Solusi Konsep Teknologi</td>
+                  </tr>
+                </tbody>
+              </table>
             </div>
           )}
 

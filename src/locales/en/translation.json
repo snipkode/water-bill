@@ -25,9 +25,9 @@
     "bankTransfer": "Bank Transfer",
     "bankTransferDescription": "Transfer to our bank account",
     "bankDetails": "Bank Account Details",
-    "bank": "Bank: Bank Central Asia (BCA)",
-    "accountNumber": "Account Number: 1234567890",
-    "accountName": "Account Name: PT Water Supply",
+    "bank": "Bank",
+    "accountNumber": "Account Number",
+    "accountName": "Account Name",
     "uploadProof": "Upload Payment Proof",
     "submitPayment": "Submit Payment"
   },

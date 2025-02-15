@@ -25,9 +25,9 @@
     "bankTransfer": "Transfer Bank",
     "bankTransferDescription": "Transfer ke rekening bank kami",
     "bankDetails": "Detail Rekening Bank",
-    "bank": "Bank: Bank Central Asia (BCA)",
-    "accountNumber": "Nomor Rekening: 1234567890",
-    "accountName": "Nama Rekening: PT Water Supply",
+    "bank": "Bank",
+    "accountNumber": "Nomor Rekening",
+    "accountName": "Nama Rekening",
     "uploadProof": "Unggah Bukti Pembayaran",
     "submitPayment": "Kirim Pembayaran"
   },
