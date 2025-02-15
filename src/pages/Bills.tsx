@@ -12,6 +12,8 @@ const Bills = () => {
   const { user } = useAuth();
   const [bills, setBills] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
+  const [currentPage, setCurrentPage] = useState(1);
+  const [billsPerPage] = useState(10);
 
   useEffect(() => {
     const fetchBills = async () => {
@@ -54,10 +56,18 @@ const Bills = () => {
     navigate(`/payment/${billId}`);
   };
 
+  // Get current bills
+  const indexOfLastBill = currentPage * billsPerPage;
+  const indexOfFirstBill = indexOfLastBill - billsPerPage;
+  const currentBills = bills.slice(indexOfFirstBill, indexOfLastBill);
+
+  // Change page
+  const paginate = (pageNumber: number) => setCurrentPage(pageNumber);
+
   return (
     <div className="space-y-6">
       <h1 className="text-2xl sm:text-3xl font-bold">{t('bills.title')}</h1>
-      
+
       <div className="bg-white rounded-lg shadow-sm overflow-hidden">
         <div className="overflow-x-auto">
           <table className="min-w-full divide-y divide-gray-200">
@@ -87,14 +97,14 @@ const Bills = () => {
                     {t('bills.loading')}
                   </td>
                 </tr>
-              ) : bills.length === 0 ? (
+              ) : currentBills.length === 0 ? (
                 <tr>
                   <td colSpan={5} className="px-6 py-4 text-center">
                     {t('bills.notFound')}
                   </td>
                 </tr>
               ) : (
-                bills.map((bill) => (
+                currentBills.map((bill) => (
                   <tr key={bill.id}>
                     <td className="px-6 py-4 whitespace-nowrap">
                       {format(new Date(bill.tanggal_tagihan), 'dd MMM yyyy')}
@@ -124,6 +134,42 @@ const Bills = () => {
           </table>
         </div>
       </div>
+
+      {Math.ceil(bills.length / billsPerPage) > 1 && (
+        <div className="flex justify-center mt-4">
+          <nav className="relative z-0 inline-flex rounded-md shadow-sm -space-x-px" aria-label="Pagination">
+            <button
+              onClick={() => paginate(currentPage - 1)}
+              disabled={currentPage === 1}
+              className="relative inline-flex items-center px-2 py-2 rounded-l-md border border-gray-300 bg-white text-sm font-medium text-gray-500 hover:bg-gray-50"
+            >
+              <span className="sr-only">Previous</span>
+              &lt;
+            </button>
+            {[...Array(Math.ceil(bills.length / billsPerPage)).keys()].map((number) => (
+              <button
+                key={number + 1}
+                onClick={() => paginate(number + 1)}
+                className={`relative inline-flex items-center px-4 py-2 border text-sm font-medium ${
+                  currentPage === number + 1
+                    ? 'z-10 bg-blue-50 border-blue-500 text-blue-600'
+                    : 'bg-white border-gray-300 text-gray-500 hover:bg-gray-50'
+                }`}
+              >
+                {number + 1}
+              </button>
+            ))}
+            <button
+              onClick={() => paginate(currentPage + 1)}
+              disabled={currentPage === Math.ceil(bills.length / billsPerPage)}
+              className="relative inline-flex items-center px-2 py-2 rounded-r-md border border-gray-300 bg-white text-sm font-medium text-gray-500 hover:bg-gray-50"
+            >
+              <span className="sr-only">Next</span>
+              &gt;
+            </button>
+          </nav>
+        </div>
+      )}
     </div>
   );
 }
