@@ -79,6 +79,8 @@
     "viewDetails": "View Details",
     "usage": "Usage",
     "rate": "Rate",
-    "total": "Total"
+    "total": "Total",
+    "billChartTitle": "Bill History",
+    "billHistory": "Bill History"
   }
 }

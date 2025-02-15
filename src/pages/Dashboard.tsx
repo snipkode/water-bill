@@ -223,7 +223,7 @@ const Dashboard = () => {
             </div>
 
             <div className="bg-white p-4 md:p-6 rounded-lg shadow-sm">
-              <h2 className="text-xl font-semibold mb-4">{t('dashboard.billHistory')}</h2>
+              <h2 className="text-xl font-semibold mb-4">{t('dashboard.billChartTitle')}</h2>
               <div className="h-64">
                 <Bar data={billChartData} />
               </div>

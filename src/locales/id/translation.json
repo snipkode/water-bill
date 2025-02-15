@@ -79,6 +79,8 @@
     "viewDetails": "Lihat Detail",
     "usage": "Penggunaan",
     "rate": "Tarif",
-    "total": "Total"
+    "total": "Total",
+    "billChartTitle": "Riwayat Tagihan",
+    "billHistory": "Riwayat Tagihan"
   }
 }
