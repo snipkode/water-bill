@@ -3,7 +3,7 @@ import { useNavigate } from 'react-router-dom';
 import { DropletIcon, AlertCircleIcon, EyeIcon, XIcon } from 'lucide-react';
 import { supabase } from '../lib/supabase';
 import { useTranslation } from 'react-i18next';
-import { Line } from 'react-chartjs-2';
+import { Line, Bar } from 'react-chartjs-2';
 import { useAuth } from '../context/AuthContext';
 import 'chart.js/auto';
 
@@ -127,6 +127,19 @@ const Dashboard = () => {
     ],
   }), [usageHistory, t]);
 
+  const billChartData = useMemo(() => ({
+    labels: usageHistory.map((reading) => new Date(reading.tanggal_pembacaan).toLocaleDateString()),
+    datasets: [
+      {
+        label: t('dashboard.billHistory'),
+        data: usageHistory.map((reading) => reading.penggunaan * 5000), // Example calculation
+        backgroundColor: 'rgba(153, 102, 255, 0.6)',
+        borderColor: 'rgba(153, 102, 255, 1)',
+        borderWidth: 1,
+      },
+    ],
+  }), [usageHistory, t]);
+
   const handleViewDetails = () => {
     setShowPopup(true);
   };
@@ -154,15 +167,15 @@ const Dashboard = () => {
   };
 
   return (
-    <div className="space-y-6">
+    <div className="space-y-6 p-4 md:p-6 lg:p-8">
       <h1 className="text-3xl font-bold">{t('dashboard.title')}</h1>
       
       {loading ? (
         <div className="text-center">{t('dashboard.loading')}</div>
       ) : (
         <>
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-            <div className="bg-white p-6 rounded-lg shadow-sm">
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
+            <div className="bg-white p-4 md:p-6 rounded-lg shadow-sm flex flex-col justify-between">
               <div className="flex items-center justify-between">
                 <div>
                   <p className="text-gray-500">{t('dashboard.currentUsage')}</p>
@@ -172,7 +185,7 @@ const Dashboard = () => {
               </div>
             </div>
 
-            <div className="bg-white p-6 rounded-lg shadow-sm">
+            <div className="bg-white p-4 md:p-6 rounded-lg shadow-sm flex flex-col justify-between">
               <div className="flex items-center justify-between">
                 <div>
                   <p className="text-gray-500">{t('dashboard.latestBill')}</p>
@@ -190,7 +203,7 @@ const Dashboard = () => {
               </button>
             </div>
 
-            <div className="bg-white p-6 rounded-lg shadow-sm">
+            <div className="bg-white p-4 md:p-6 rounded-lg shadow-sm flex flex-col justify-between">
               <div className="flex items-center justify-between">
                 <div>
                   <p className="text-gray-500">{t('dashboard.customerId')}</p>
@@ -201,15 +214,24 @@ const Dashboard = () => {
             </div>
           </div>
 
-          <div className="bg-white p-6 rounded-lg shadow-sm">
-            <h2 className="text-xl font-semibold mb-4">{t('dashboard.usageHistory')}</h2>
-            <div className="h-64">
-              <Line data={chartData} />
+          <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 mt-6">
+            <div className="bg-white p-4 md:p-6 rounded-lg shadow-sm">
+              <h2 className="text-xl font-semibold mb-4">{t('dashboard.usageHistory')}</h2>
+              <div className="h-64">
+                <Line data={chartData} />
+              </div>
+            </div>
+
+            <div className="bg-white p-4 md:p-6 rounded-lg shadow-sm">
+              <h2 className="text-xl font-semibold mb-4">{t('dashboard.billHistory')}</h2>
+              <div className="h-64">
+                <Bar data={billChartData} />
+              </div>
             </div>
           </div>
 
           {showPopup && (
-            <div className="fixed inset-0 flex items-center justify-center bg-black bg-opacity-50">
+            <div className="fixed inset-0 flex items-center justify-center bg-black bg-opacity-50 p-4">
               <div className="bg-white p-6 rounded-lg shadow-lg max-w-md w-full">
                 <div className="flex justify-between items-center mb-4">
                   <h2 className="text-xl font-semibold">{t('dashboard.billDetails')}</h2>
