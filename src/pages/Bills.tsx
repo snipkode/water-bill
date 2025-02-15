@@ -14,34 +14,32 @@ const Bills = () => {
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    let isMounted = true;
 
     const fetchBills = async () => {
       console.log('Fetching bills data...');
       setLoading(true);
 
+      const { data: customerData, error: customerError } = await supabase
+        .from('pelanggan')
+        .select('*')
+        .eq('id', user?.id)
+        .single();
+
+      if(customerError) console.error('Error fetching customer data:', customerError);
+      
       const { data: billsData, error: billsError } = await supabase
         .from('tagihan')
         .select('*')
-        .eq('pelanggan_id', user?.id)
+        .eq('pelanggan_id', customerData.id)
         .order('tanggal_tagihan', { ascending: false });
+        if(billsError) console.error('Error fetching bills:', billsError);
+        setBills(billsData || []);
 
-      if (billsError) {
-        console.error('Error fetching bills:', billsError);
-      } else if (isMounted) {
-        setBills(billsData);
-      }
       setLoading(false);
     };
 
-    if (user) {
-      fetchBills();
-    }
-
-    return () => {
-      isMounted = false;
-    };
-  }, [user]);
+    fetchBills();
+  }, []);
 
   const handlePayNow = (billId: number) => {
     navigate(`/payment/${billId}`);
