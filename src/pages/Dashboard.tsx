@@ -78,26 +78,11 @@ const Dashboard = () => {
           const dueDate = new Date();
           dueDate.setDate(dueDate.getDate() + 30); // Set due date to 30 days from now
 
-          const { error: billError } = await supabase
-            .from('tagihan')
-            .insert({
-              pembacaan_id: latestReading.id,
-              pelanggan_id: customerData.id,
-              tanggal_tagihan: new Date().toISOString(),
-              jumlah: newBillAmount,
-              status: 'belum_dibayar',
-              tanggal_jatuh_tempo: dueDate.toISOString(),
-            });
-
-          if (billError) {
-            console.error('Error creating bill:', billError);
-          } else {
-            setLatestBill({
-              id: latestReading.id,
-              jumlah: newBillAmount,
-              tanggal_jatuh_tempo: dueDate.toISOString(),
-            });
-          }
+          setLatestBill({
+            id: latestReading.id,
+            jumlah: newBillAmount,
+            tanggal_jatuh_tempo: dueDate.toISOString(),
+          });
         }
       }
 
