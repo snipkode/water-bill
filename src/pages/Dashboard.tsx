@@ -96,7 +96,7 @@ const Dashboard = () => {
     return () => {
       isMounted = false;
     };
-  }, []);
+  }, [user]);
 
   const chartData = useMemo(() => ({
     labels: usageHistory.map((reading) => new Date(reading.tanggal_pembacaan).toLocaleDateString()),
@@ -132,21 +132,28 @@ const Dashboard = () => {
     setShowPopup(false);
   };
 
-  const handlePayBill = async () => {
+  const handleCreateInvoice = async () => {
     try {
       const { error: billError } = await supabase
         .from('tagihan')
-        .update({ status: 'dibayar', tanggal_dibayar: new Date().toISOString() })
-        .eq('id', latestBill?.id);
+        .upsert({
+          id: latestBill?.id,
+          pelanggan_id: customerId,
+          jumlah: latestBill?.jumlah,
+          status: 'belum_dibayar',
+          tanggal_jatuh_tempo: latestBill?.tanggal_jatuh_tempo,
+          tanggal_dibayar: new Date().toISOString(),
+          tanggal_tagihan: new Date().toISOString(),
+        });
 
       if (billError) {
-        console.error('Error paying bill:', billError);
+        console.error('Error creating invoice:', billError);
       } else {
         setLatestBill((prev) => prev ? { ...prev, status: 'dibayar' } : null);
         setShowPopup(false);
       }
     } catch (error) {
-      console.error('Error paying bill:', error);
+      console.error('Error creating invoice:', error);
     }
   };
 
@@ -261,7 +268,7 @@ const Dashboard = () => {
                 </div>
                 <button
                   className="mt-4 w-full py-2 px-4 bg-blue-600 text-white rounded-md hover:bg-blue-700"
-                  onClick={handlePayBill}
+                  onClick={handleCreateInvoice}
                 >
                   {t('dashboard.payBill')}
                 </button>
