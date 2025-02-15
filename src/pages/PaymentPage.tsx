@@ -11,7 +11,7 @@ const PaymentPage = () => {
   const [paymentMethod, setPaymentMethod] = useState('bank_transfer');
   const [proofImage, setProofImage] = useState<File | null>(null);
   const [previewUrl, setPreviewUrl] = useState<string>('');
-  const [bill, setBill] = useState(null);
+  const [bill, setBill] = useState<any>(null);
 
   useEffect(() => {
     let isMounted = true;
@@ -56,8 +56,33 @@ const PaymentPage = () => {
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setLoading(true);
-    // Handle payment submission here
-    setTimeout(() => setLoading(false), 2000);
+
+    if (proofImage) {
+      const { data, error } = await supabase.storage
+        .from('payment-proofs')
+        .upload(`proofs/${billId}-${proofImage.name}`, proofImage);
+
+      if (error) {
+        console.error('Error uploading proof:', error);
+        setLoading(false);
+        return;
+      }
+
+      const proofUrl = data?.path;
+
+      const { error: updateError } = await supabase
+        .from('tagihan')
+        .update({ status: 'dibayar', proof_url: proofUrl })
+        .eq('id', billId);
+
+      if (updateError) {
+        console.error('Error updating bill status:', updateError);
+      } else {
+        alert(t('payment.success'));
+      }
+    }
+
+    setLoading(false);
   };
 
   return (
@@ -68,11 +93,11 @@ const PaymentPage = () => {
         <div className="flex items-center justify-between mb-6">
           <div>
             <h2 className="text-lg font-semibold">{t('payment.billNumber', { billId })}</h2>
-            <p className="text-gray-500">{t('payment.dueDate', { dueDate: 'March 15, 2025' })}</p>
+            <p className="text-gray-500">{t('payment.dueDate', { dueDate: bill?.tanggal_jatuh_tempo })}</p>
           </div>
           <div className="text-right">
             <p className="text-sm text-gray-500">{t('payment.amountDue')}</p>
-            <p className="text-2xl font-bold text-blue-600">Rp 250.000</p>
+            <p className="text-2xl font-bold text-blue-600">Rp {bill?.jumlah.toLocaleString()}</p>
           </div>
         </div>
 

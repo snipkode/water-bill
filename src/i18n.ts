@@ -16,8 +16,8 @@ i18n
   .use(initReactI18next)
   .init({
     resources,
-    lng: 'en', // default language
-    fallbackLng: 'en',
+    lng: 'id', // default language
+    fallbackLng: 'id',
     interpolation: {
       escapeValue: false
     }
