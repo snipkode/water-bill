@@ -32,7 +32,7 @@
     "submitPayment": "Submit Payment"
   },
   "profile": {
-    "title": "Profile",
+    "title": "My Profile",
     "customerId": "Customer ID",
     "fullName": "Full Name",
     "email": "Email",

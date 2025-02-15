@@ -65,7 +65,7 @@ const Bills = () => {
   const paginate = (pageNumber: number) => setCurrentPage(pageNumber);
 
   return (
-    <div className="space-y-6">
+    <div className="space-y-6 max-w-4xl mx-auto">
       <h1 className="text-2xl sm:text-3xl font-bold">{t('bills.title')}</h1>
 
       <div className="bg-white rounded-lg shadow-sm overflow-hidden">

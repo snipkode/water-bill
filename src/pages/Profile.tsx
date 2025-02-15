@@ -79,7 +79,7 @@ const Profile = () => {
   };
 
   return (
-    <div className="space-y-6">
+    <div className="space-y-6 max-w-4xl mx-auto">
       <h1 className="text-2xl sm:text-3xl font-bold">{t('profile.title')}</h1>
       
       <div className="bg-white rounded-lg shadow-sm p-6">
