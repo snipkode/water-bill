@@ -16,7 +16,6 @@ interface Bill {
 const Dashboard = () => {
   const { t } = useTranslation();
   const { user } = useAuth();
-  const navigate = useNavigate();
   const [currentUsage, setCurrentUsage] = useState(0);
   const [latestBill, setLatestBill] = useState<Bill | null>(null);
   const [customerId, setCustomerId] = useState('');
@@ -177,7 +176,7 @@ const Dashboard = () => {
               <div className="flex items-center justify-between">
                 <div>
                   <p className="text-gray-500">{t('dashboard.latestBill')}</p>
-                  <p className="text-2xl font-bold">Rp {latestBill?.jumlah}</p>
+                  <p className="text-2xl font-bold">Rp {latestBill?.jumlah.toLocaleString()}</p>
                 </div>
                 <AlertCircleIcon className="h-8 w-8 text-yellow-500" />
               </div>
@@ -242,10 +241,10 @@ const Dashboard = () => {
                           {(latestBill?.jumlah ?? 0) / 5000} m³
                         </td>
                         <td className="px-6 py-4 whitespace-nowrap">
-                          Rp 5000
+                          Rp 5,000
                         </td>
                         <td className="px-6 py-4 whitespace-nowrap">
-                          Rp {latestBill?.jumlah}
+                          Rp {latestBill?.jumlah.toLocaleString()}
                         </td>
                         <td className="px-6 py-4 whitespace-nowrap">
                           {latestBill?.tanggal_jatuh_tempo}
