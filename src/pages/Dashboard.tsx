@@ -1,5 +1,4 @@
 import { useEffect, useState, useMemo } from 'react';
-import { useNavigate } from 'react-router-dom';
 import { DropletIcon, AlertCircleIcon, EyeIcon, XIcon } from 'lucide-react';
 import { supabase } from '../lib/supabase';
 import { useTranslation } from 'react-i18next';
@@ -112,7 +111,7 @@ const Dashboard = () => {
     return () => {
       isMounted = false;
     };
-  }, [user]); // Ensure the dependency array includes user to run only when it changes
+  }, []);
 
   const chartData = useMemo(() => ({
     labels: usageHistory.map((reading) => new Date(reading.tanggal_pembacaan).toLocaleDateString()),

@@ -1,4 +1,3 @@
-import { useState, useEffect } from 'react';
 import { BrowserRouter as Router, Routes, Route, Navigate } from 'react-router-dom';
 import Navigation from './components/Navigation';
 import Dashboard from './pages/Dashboard';
@@ -8,8 +7,7 @@ import Profile from './pages/Profile';
 import Auth from './pages/Auth';
 import PaymentPage from './pages/PaymentPage';
 import MeterInfo from './pages/MeterInfo';
-import { supabase } from './lib/supabase';
-import './i18n'; // Import i18n configuration
+import './i18n';
 import { AuthProvider, useAuth } from './context/AuthContext';
 
 const AppRoutes = () => {
